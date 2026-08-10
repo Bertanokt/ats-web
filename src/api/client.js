@@ -43,8 +43,10 @@ async function istek(yol, secenekler = {}) {
         throw new Error(mesaj);
     }
 
-    if (cevap.status === 204) return null;
-    return cevap.json();
+    // Govdesi olmayan cevaplar (DELETE gibi) icin
+    const metin = await cevap.text();
+    if (!metin) return null;
+    return JSON.parse(metin);
 }
 
 export const api = {
