@@ -28,11 +28,6 @@ export default function Giris() {
         }
     }
 
-    function demoDoldur(demoEmail) {
-        setEmail(demoEmail);
-        setSifre('demo1234');
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center px-4">
             <div className="w-full max-w-sm">
@@ -95,26 +90,6 @@ export default function Giris() {
                         {yukleniyor ? 'Giriş yapılıyor...' : 'Giriş yap'}
                     </button>
                 </form>
-
-                <div className="mt-6 text-center text-sm text-slate-500">
-                    <p className="mb-2">Demo hesaplar</p>
-                    <div className="flex gap-2 justify-center">
-                        <button
-                            type="button"
-                            onClick={() => demoDoldur('admin@ats.com')}
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
-                        >
-                            Yönetici
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => demoDoldur('ik@ats.com')}
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
-                        >
-                            İK Uzmanı
-                        </button>
-                    </div>
-                </div>
 
             </div>
         </div>
