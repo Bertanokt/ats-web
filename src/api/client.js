@@ -1,0 +1,76 @@
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
+// --- Token'i localStorage'dan oku ---
+function tokenAl() {
+    const kayitli = localStorage.getItem('ats_kullanici');
+    if (!kayitli) return null;
+    try {
+        return JSON.parse(kayitli).token;
+    } catch {
+        return null;
+    }
+}
+
+async function istek(yol, secenekler = {}) {
+    const token = tokenAl();
+
+    // Mevcut basliklarin uzerine Authorization ekle
+    const basliklar = { ...secenekler.headers };
+    if (token) {
+        basliklar['Authorization'] = `Bearer ${token}`;
+    }
+
+    const cevap = await fetch(`${BASE_URL}${yol}`, {
+        ...secenekler,
+        headers: basliklar,
+    });
+
+    // 401: token gecersiz veya suresi dolmus -> otomatik cikis
+    if (cevap.status === 401) {
+        localStorage.removeItem('ats_kullanici');
+        window.location.href = '/giris';
+        throw new Error('Oturumunuz sona erdi, tekrar giris yapin');
+    }
+
+    if (!cevap.ok) {
+        let mesaj = `Hata: ${cevap.status}`;
+        try {
+            const hata = await cevap.json();
+            if (hata.mesaj) mesaj = hata.mesaj;
+        } catch {
+            // JSON degilse varsayilan mesaji kullan
+        }
+        throw new Error(mesaj);
+    }
+
+    if (cevap.status === 204) return null;
+    return cevap.json();
+}
+
+export const api = {
+    get: (yol) => istek(yol),
+
+    post: (yol, veri) =>
+        istek(yol, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(veri),
+        }),
+
+    put: (yol, veri) =>
+        istek(yol, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(veri),
+        }),
+
+    del: (yol) => istek(yol, { method: 'DELETE' }),
+
+    postParam: (yol) => istek(yol, { method: 'POST' }),
+
+    upload: (yol, dosya) => {
+        const form = new FormData();
+        form.append('dosya', dosya);
+        return istek(yol, { method: 'POST', body: form });
+    },
+};
