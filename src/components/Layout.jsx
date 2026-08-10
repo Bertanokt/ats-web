@@ -29,12 +29,9 @@ export default function Layout() {
         <div className="min-h-screen bg-slate-50">
             <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
                 <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-1">
-                    <div className="flex items-center gap-2 mr-4">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">
-                            A
-                        </span>
-                        <span className="font-semibold text-slate-900">ATS</span>
-                    </div>
+                    <span className="mr-4 flex h-8 items-center justify-center rounded-lg bg-blue-600 px-2.5 text-sm font-bold tracking-tight text-white">
+                        ATS
+                    </span>
 
                     <NavLink to="/ilanlar" className={linkStil}>İlanlar</NavLink>
                     <NavLink to="/adaylar" className={linkStil}>Adaylar</NavLink>
