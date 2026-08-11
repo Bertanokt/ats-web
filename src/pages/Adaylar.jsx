@@ -118,25 +118,44 @@ export default function Adaylar() {
     );
 
     if (yukleniyor) {
-        return <p className="text-gray-500">Yükleniyor...</p>;
+        return (
+            <div className="space-y-3">
+                {[1, 2, 3].map((n) => (
+                    <div key={n} className="rounded-xl border border-slate-200 bg-white p-4">
+                        <div className="h-4 w-40 rounded bg-slate-200 animate-pulse" />
+                        <div className="h-3 w-56 rounded bg-slate-100 mt-2.5 animate-pulse" />
+                        <div className="h-3 w-full max-w-sm rounded bg-slate-100 mt-3 animate-pulse" />
+                        <div className="flex gap-1.5 mt-3">
+                            <div className="h-5 w-14 rounded bg-slate-100 animate-pulse" />
+                            <div className="h-5 w-16 rounded bg-slate-100 animate-pulse" />
+                            <div className="h-5 w-12 rounded bg-slate-100 animate-pulse" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
     }
 
     return (
         <div>
             {/* Baslik ve yeni aday butonu */}
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">Adaylar</h1>
-                <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500">
-                        {arama ? `${filtreli.length} / ${adaylar.length}` : `${adaylar.length} aday`}
-                    </span>
-                    <button
-                        onClick={() => setFormAcik(!formAcik)}
-                        className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700"
-                    >
-                        {formAcik ? 'Vazgeç' : '+ Yeni aday'}
-                    </button>
+            <div className="flex items-end justify-between mb-5">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">Adaylar</h1>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                        {arama ? `${filtreli.length} / ${adaylar.length} aday` : `${adaylar.length} aday`}
+                    </p>
                 </div>
+                <button
+                    onClick={() => setFormAcik(!formAcik)}
+                    className={
+                        formAcik
+                            ? 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100'
+                            : 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
+                    }
+                >
+                    {formAcik ? 'Vazgeç' : '+ Yeni aday'}
+                </button>
             </div>
 
             {/* Arama */}
@@ -145,15 +164,15 @@ export default function Adaylar() {
                 value={arama}
                 onChange={(e) => setArama(e.target.value)}
                 placeholder="İsim, e-posta veya yetenek ara..."
-                className="w-full border rounded px-3 py-2 mb-4"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 mb-4 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             />
 
             {/* Yeni aday formu */}
             {formAcik && (
-                <form onSubmit={formGonder} className="bg-white border rounded-lg p-4 mb-4 space-y-3">
+                <form onSubmit={formGonder} className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-4 space-y-4">
 
                     {/* CV yukleme */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="bg-blue-50/70 border border-blue-100 rounded-lg p-4">
                         <label className="block text-sm font-medium text-blue-900 mb-2">
                             Özgeçmişten otomatik doldur
                         </label>
@@ -162,12 +181,13 @@ export default function Adaylar() {
                             accept="application/pdf"
                             onChange={cvSecildi}
                             disabled={cvYukleniyor}
-                            className="block w-full text-sm text-gray-600
+                            className="block w-full text-sm text-slate-600
                                        file:mr-3 file:py-1.5 file:px-3
-                                       file:rounded file:border-0
+                                       file:rounded-lg file:border-0
                                        file:bg-blue-600 file:text-white
                                        file:text-sm file:font-medium
-                                       hover:file:bg-blue-700
+                                       file:transition hover:file:bg-blue-700
+                                       file:cursor-pointer
                                        disabled:opacity-50"
                         />
                         {cvYukleniyor && (
@@ -182,40 +202,40 @@ export default function Adaylar() {
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Ad Soyad</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ad Soyad</label>
                             <input
                                 name="adSoyad"
                                 value={form.adSoyad}
                                 onChange={formDegis}
                                 required
-                                className="w-full border rounded px-3 py-2"
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">E-posta</label>
                             <input
                                 type="email"
                                 name="email"
                                 value={form.email}
                                 onChange={formDegis}
                                 required
-                                className="w-full border rounded px-3 py-2"
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Telefon</label>
                         <input
                             name="telefon"
                             value={form.telefon}
                             onChange={formDegis}
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
                             Yetenekler <span className="text-gray-400 font-normal">(virgülle ayırın)</span>
                         </label>
                         <input
@@ -223,18 +243,18 @@ export default function Adaylar() {
                             value={form.yetenekler}
                             onChange={formDegis}
                             placeholder="Java, Spring, SQL"
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Özet</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Özet</label>
                         <textarea
                             name="ozet"
                             value={form.ozet}
                             onChange={formDegis}
                             rows={2}
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                         />
                     </div>
 
@@ -248,14 +268,14 @@ export default function Adaylar() {
                         <button
                             type="submit"
                             disabled={kaydediliyor || cvYukleniyor}
-                            className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
+                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                         >
                             {kaydediliyor ? 'Kaydediliyor...' : 'Kaydet'}
                         </button>
                         <button
                             type="button"
                             onClick={formuTemizle}
-                            className="border rounded px-4 py-2 text-sm hover:bg-gray-50"
+                            className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
                         >
                             Temizle
                         </button>
@@ -265,11 +285,11 @@ export default function Adaylar() {
 
             {/* Genel hata */}
             {hata && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <p className="text-red-700">{hata}</p>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                    <p className="text-sm text-red-700">{hata}</p>
                     <button
                         onClick={adaylariGetir}
-                        className="mt-2 text-sm border border-red-300 rounded px-3 py-1 hover:bg-red-100"
+                        className="mt-2.5 text-sm border border-red-300 rounded-lg px-3 py-1.5 text-red-700 transition hover:bg-red-100"
                     >
                         Tekrar dene
                     </button>
@@ -278,21 +298,47 @@ export default function Adaylar() {
 
             {/* Liste veya bos durum */}
             {filtreli.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 border rounded-lg bg-white">
-                    <p>{arama ? 'Aramanıza uyan aday bulunamadı.' : 'Henüz aday yok.'}</p>
+                <div className="text-center py-14 border border-slate-200 rounded-xl bg-white">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                        {arama ? '?' : '+'}
+                    </div>
+                    <p className="text-slate-700 font-medium mt-3">
+                        {arama ? 'Aramanıza uyan aday bulunamadı' : 'Henüz aday yok'}
+                    </p>
+                    <p className="text-sm text-slate-500 mt-1">
+                        {arama
+                            ? 'Farklı bir isim, e-posta veya yetenek deneyin.'
+                            : 'Yukarıdaki butondan ilk adayı ekleyebilirsiniz.'}
+                    </p>
                 </div>
             ) : (
                 <div className="space-y-3">
                     {filtreli.map((aday) => (
-                        <div key={aday.id} className="bg-white border rounded-lg p-4 hover:border-gray-300">
-                            <h2 className="font-medium text-gray-900">{aday.adSoyad}</h2>
-                            <p className="text-sm text-gray-500 mt-0.5">
-                                {aday.email}
-                                {aday.telefon && ` · ${aday.telefon}`}
-                            </p>
+                        <div
+                            key={aday.id}
+                            className="bg-white border border-slate-200 rounded-xl p-5 transition hover:border-slate-300 hover:shadow-sm"
+                        >
+                            <div className="flex items-start gap-3">
+                                <span className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500">
+                                    {aday.adSoyad
+                                        .trim()
+                                        .split(/\s+/)
+                                        .slice(0, 2)
+                                        .map((p) => p[0])
+                                        .join('')
+                                        .toLocaleUpperCase('tr')}
+                                </span>
+                                <div className="min-w-0">
+                                    <h2 className="font-semibold text-slate-900">{aday.adSoyad}</h2>
+                                    <p className="text-sm text-slate-500 mt-0.5 truncate">
+                                        {aday.email}
+                                        {aday.telefon && ` · ${aday.telefon}`}
+                                    </p>
+                                </div>
+                            </div>
 
                             {aday.ozet && (
-                                <p className="text-sm text-gray-600 mt-2">{aday.ozet}</p>
+                                <p className="text-sm text-slate-600 mt-3">{aday.ozet}</p>
                             )}
 
                             {aday.yetenekler && (
@@ -300,7 +346,7 @@ export default function Adaylar() {
                                     {aday.yetenekler.split(',').map((yetenek) => (
                                         <span
                                             key={yetenek}
-                                            className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5"
+                                            className="text-xs bg-slate-100 text-slate-600 rounded-md px-2 py-0.5"
                                         >
                                             {yetenek.trim()}
                                         </span>
@@ -309,11 +355,11 @@ export default function Adaylar() {
                             )}
 
                             {adminMi && (
-                                <div className="flex gap-2 mt-4 pt-3 border-t">
+                                <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                                     <button
                                         onClick={() => adaySil(aday)}
                                         disabled={islemYapilan === aday.id}
-                                        className="text-sm border border-red-200 text-red-600 rounded px-3 py-1.5 hover:bg-red-50 disabled:opacity-50"
+                                        className="text-sm border border-slate-200 text-slate-500 rounded-lg px-3 py-1.5 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                                     >
                                         Sil
                                     </button>

@@ -90,32 +90,51 @@ export default function Ilanlar() {
     }
 
     if (yukleniyor) {
-        return <p className="text-gray-500">Yükleniyor...</p>;
+        return (
+            <div className="space-y-3">
+                {[1, 2, 3].map((n) => (
+                    <div key={n} className="rounded-xl border border-slate-200 bg-white p-4">
+                        <div className="h-4 w-44 rounded bg-slate-200 animate-pulse" />
+                        <div className="h-3 w-24 rounded bg-slate-100 mt-2.5 animate-pulse" />
+                        <div className="h-3 w-full max-w-md rounded bg-slate-100 mt-3 animate-pulse" />
+                        <div className="flex gap-1.5 mt-3">
+                            <div className="h-5 w-14 rounded bg-slate-100 animate-pulse" />
+                            <div className="h-5 w-16 rounded bg-slate-100 animate-pulse" />
+                            <div className="h-5 w-12 rounded bg-slate-100 animate-pulse" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
     }
 
     return (
         <div>
             {/* Baslik ve yeni ilan butonu */}
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">İlanlar</h1>
-                <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500">{ilanlar.length} ilan</span>
-                    <button
-                        onClick={() => setFormAcik(!formAcik)}
-                        className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700"
-                    >
-                        {formAcik ? 'Vazgeç' : '+ Yeni ilan'}
-                    </button>
+            <div className="flex items-end justify-between mb-5">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">İlanlar</h1>
+                    <p className="text-sm text-slate-500 mt-0.5">{ilanlar.length} ilan</p>
                 </div>
+                <button
+                    onClick={() => setFormAcik(!formAcik)}
+                    className={
+                        formAcik
+                            ? 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100'
+                            : 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
+                    }
+                >
+                    {formAcik ? 'Vazgeç' : '+ Yeni ilan'}
+                </button>
             </div>
 
             {/* Genel hata (liste cekme, silme, durum degistirme) */}
             {hata && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                    <p className="text-red-700">{hata}</p>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                    <p className="text-sm text-red-700">{hata}</p>
                     <button
                         onClick={ilanlariGetir}
-                        className="mt-2 text-sm border border-red-300 rounded px-3 py-1 hover:bg-red-100"
+                        className="mt-2.5 text-sm border border-red-300 rounded-lg px-3 py-1.5 text-red-700 transition hover:bg-red-100"
                     >
                         Tekrar dene
                     </button>
@@ -124,32 +143,32 @@ export default function Ilanlar() {
 
             {/* Yeni ilan formu */}
             {formAcik && (
-                <form onSubmit={formGonder} className="bg-white border rounded-lg p-4 mb-4 space-y-3">
+                <form onSubmit={formGonder} className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-4 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Pozisyon</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Pozisyon</label>
                             <input
                                 name="pozisyon"
                                 value={form.pozisyon}
                                 onChange={formDegis}
                                 required
-                                className="w-full border rounded px-3 py-2"
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Departman</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Departman</label>
                             <input
                                 name="departman"
                                 value={form.departman}
                                 onChange={formDegis}
                                 required
-                                className="w-full border rounded px-3 py-2"
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
                             Nitelikler <span className="text-gray-400 font-normal">(virgülle ayırın)</span>
                         </label>
                         <input
@@ -158,18 +177,18 @@ export default function Ilanlar() {
                             onChange={formDegis}
                             required
                             placeholder="Java, Spring, SQL"
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Açıklama</label>
                         <textarea
                             name="aciklama"
                             value={form.aciklama}
                             onChange={formDegis}
                             rows={2}
-                            className="w-full border rounded px-3 py-2"
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                         />
                     </div>
 
@@ -182,7 +201,7 @@ export default function Ilanlar() {
                     <button
                         type="submit"
                         disabled={kaydediliyor}
-                        className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                     >
                         {kaydediliyor ? 'Kaydediliyor...' : 'Kaydet'}
                     </button>
@@ -191,48 +210,65 @@ export default function Ilanlar() {
 
             {/* Liste veya bos durum */}
             {ilanlar.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 border rounded-lg bg-white">
-                    <p>Henüz ilan yok.</p>
-                    <p className="text-sm mt-1">Yukarıdaki butondan ilk ilanı oluşturabilirsiniz.</p>
+                <div className="text-center py-14 border border-slate-200 rounded-xl bg-white">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                        +
+                    </div>
+                    <p className="text-slate-700 font-medium mt-3">Henüz ilan yok</p>
+                    <p className="text-sm text-slate-500 mt-1">
+                        Yukarıdaki butondan ilk ilanı oluşturabilirsiniz.
+                    </p>
                 </div>
             ) : (
                 <div className="space-y-3">
                     {ilanlar.map((ilan) => (
-                        <div key={ilan.id} className="bg-white border rounded-lg p-4 hover:border-gray-300">
-                            <div className="flex items-start justify-between">
+                        <div
+                            key={ilan.id}
+                            className="group bg-white border border-slate-200 rounded-xl p-5 transition hover:border-slate-300 hover:shadow-sm"
+                        >
+                            <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <h2 className="font-medium text-gray-900">{ilan.pozisyon}</h2>
-                                    <p className="text-sm text-gray-500 mt-0.5">{ilan.departman}</p>
+                                    <h2 className="font-semibold text-slate-900">{ilan.pozisyon}</h2>
+                                    <span className="inline-block text-xs text-slate-500 bg-slate-100 rounded px-2 py-0.5 mt-1.5">
+                                        {ilan.departman}
+                                    </span>
                                 </div>
                                 <span
                                     className={
                                         ilan.durum === 'ACIK'
-                                            ? 'text-xs px-2 py-1 rounded-full bg-green-100 text-green-700'
-                                            : 'text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600'
+                                            ? 'shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20'
+                                            : 'shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 ring-1 ring-slate-500/20'
                                     }
                                 >
+                                    <span
+                                        className={
+                                            ilan.durum === 'ACIK'
+                                                ? 'h-1.5 w-1.5 rounded-full bg-emerald-500'
+                                                : 'h-1.5 w-1.5 rounded-full bg-slate-400'
+                                        }
+                                    />
                                     {ilan.durum === 'ACIK' ? 'Açık' : 'Kapalı'}
                                 </span>
                             </div>
 
-                            <p className="text-sm text-gray-600 mt-2">{ilan.aciklama}</p>
+                            <p className="text-sm text-slate-600 mt-3">{ilan.aciklama}</p>
 
                             <div className="flex flex-wrap gap-1.5 mt-3">
                                 {ilan.nitelikler.split(',').map((nitelik) => (
                                     <span
                                         key={nitelik}
-                                        className="text-xs bg-gray-100 text-gray-700 rounded px-2 py-0.5"
+                                        className="text-xs bg-slate-100 text-slate-600 rounded-md px-2 py-0.5"
                                     >
                                         {nitelik.trim()}
                                     </span>
                                 ))}
                             </div>
 
-                            <div className="flex gap-2 mt-4 pt-3 border-t">
+                            <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
                                 <button
                                     onClick={() => durumDegistir(ilan)}
                                     disabled={islemYapilan === ilan.id}
-                                    className="text-sm border rounded px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50"
+                                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50"
                                 >
                                     {ilan.durum === 'ACIK' ? 'İlanı kapat' : 'İlanı aç'}
                                 </button>
@@ -241,7 +277,7 @@ export default function Ilanlar() {
                                     <button
                                         onClick={() => ilanSil(ilan)}
                                         disabled={islemYapilan === ilan.id}
-                                        className="text-sm border border-red-200 text-red-600 rounded px-3 py-1.5 hover:bg-red-50 disabled:opacity-50"
+                                        className="text-sm border border-slate-200 text-slate-500 rounded-lg px-3 py-1.5 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                                     >
                                         Sil
                                     </button>
