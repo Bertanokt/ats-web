@@ -1,38 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
-
-const ASAMA_ADI = {
-    BASVURU: 'Başvuru',
-    ON_ELEME: 'Ön Eleme',
-    MULAKAT: 'Mülakat',
-    TEKLIF: 'Teklif',
-    ISE_ALINDI: 'İşe Alındı',
-    ELENDI: 'Elendi',
-};
-
-const ASAMA_RENGI = {
-    BASVURU: 'bg-gray-100 text-gray-700',
-    ON_ELEME: 'bg-blue-100 text-blue-700',
-    MULAKAT: 'bg-purple-100 text-purple-700',
-    TEKLIF: 'bg-amber-100 text-amber-700',
-    ISE_ALINDI: 'bg-green-100 text-green-700',
-    ELENDI: 'bg-red-100 text-red-700',
-};
+import Kart from '../components/Kart';
+import Avatar from '../components/Avatar';
+import AsamaRozeti from '../components/AsamaRozeti';
+import Rozet from '../components/Rozet';
+import { tarihYaz, tarihSaatYaz } from '../utils/tarih';
+import { SECIM_DAR, GIRDI, BUTON_BIRINCIL, BUTON_TEHLIKE } from '../components/formStilleri';
 
 const TIP_ADI = {
     NOT: 'Not',
     GORUSME: 'Görüşme',
     DEGERLENDIRME: 'Değerlendirme',
 };
-
-function tarihYaz(isoMetin) {
-    const t = new Date(isoMetin);
-    return t.toLocaleDateString('tr-TR', {
-        day: 'numeric', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit',
-    });
-}
 
 export default function BasvuruDetay() {
     const { id } = useParams();
@@ -124,17 +104,35 @@ export default function BasvuruDetay() {
     }
 
     if (yukleniyor) {
-        return <p className="text-gray-500">Yükleniyor...</p>;
+        return (
+            <div>
+                <div className="h-3 w-28 rounded bg-slate-100 animate-pulse" />
+                <div className="mt-3 flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-slate-200 animate-pulse" />
+                    <div>
+                        <div className="h-5 w-44 rounded bg-slate-200 animate-pulse" />
+                        <div className="mt-2 h-3 w-64 rounded bg-slate-100 animate-pulse" />
+                    </div>
+                </div>
+                <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <div className="h-56 rounded-xl border border-slate-200 bg-white animate-pulse" />
+                    <div className="h-56 rounded-xl border border-slate-200 bg-white animate-pulse lg:col-span-2" />
+                </div>
+            </div>
+        );
     }
 
     if (hata && !basvuru) {
         return (
             <div>
-                <Link to="/basvurular" className="text-sm text-blue-600 hover:underline">
+                <Link
+                    to="/basvurular"
+                    className="text-sm text-blue-600 transition hover:text-blue-700 hover:underline"
+                >
                     ← Başvurulara dön
                 </Link>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-3">
-                    <p className="text-red-700">{hata}</p>
+                <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm text-red-700">{hata}</p>
                 </div>
             </div>
         );
@@ -145,98 +143,121 @@ export default function BasvuruDetay() {
 
             {/* Ust satir */}
             <div>
-                <Link to="/basvurular" className="text-sm text-blue-600 hover:underline">
+                <Link
+                    to="/basvurular"
+                    className="text-sm text-blue-600 transition hover:text-blue-700 hover:underline"
+                >
                     ← Başvurulara dön
                 </Link>
-                <div className="flex items-center gap-3 mt-2">
-                    <h1 className="text-2xl font-bold">{basvuru.aday.adSoyad}</h1>
-                    <span className={`text-xs px-2.5 py-1 rounded-full ${ASAMA_RENGI[basvuru.asama]}`}>
-                        {ASAMA_ADI[basvuru.asama]}
-                    </span>
+
+                <div className="mt-3 flex items-start gap-3">
+                    <Avatar ad={basvuru.aday.adSoyad} boyut="xl" />
+                    <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                                {basvuru.aday.adSoyad}
+                            </h1>
+                            <AsamaRozeti asama={basvuru.asama} />
+                        </div>
+                        <p className="mt-1 text-sm text-slate-500">
+                            {basvuru.ilan.pozisyon} · {basvuru.ilan.departman} ·{' '}
+                            {tarihYaz(basvuru.basvuruTarihi)}
+                        </p>
+                    </div>
                 </div>
-                <p className="text-gray-500 mt-1">
-                    {basvuru.ilan.pozisyon} · {basvuru.ilan.departman} · {basvuru.basvuruTarihi}
-                </p>
             </div>
 
             {/* Islem hatasi (asama ilerletme / eleme) */}
             {hata && (
-                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                    <p className="text-red-700 text-sm">{hata}</p>
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                    <p className="text-sm text-red-700">{hata}</p>
                 </div>
             )}
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
 
                 {/* Sol sutun */}
                 <div className="space-y-4">
 
                     {basvuru.asama !== 'ISE_ALINDI' && basvuru.asama !== 'ELENDI' && (
-                        <div className="bg-white border rounded-lg p-4">
-                            <h2 className="font-medium mb-3">İşlemler</h2>
+                        <Kart>
+                            <h2 className="mb-3 font-semibold text-slate-900">İşlemler</h2>
                             <div className="flex flex-col gap-2">
                                 <button
                                     onClick={asamaIlerlet}
                                     disabled={islemYapiliyor}
-                                    className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
+                                    className={BUTON_BIRINCIL}
                                 >
                                     {islemYapiliyor ? 'İşleniyor...' : 'Sonraki aşamaya geçir'}
                                 </button>
                                 <button
                                     onClick={adayEle}
                                     disabled={islemYapiliyor}
-                                    className="border border-red-200 text-red-600 rounded px-4 py-2 text-sm hover:bg-red-50 disabled:opacity-50"
+                                    className={`${BUTON_TEHLIKE} py-2`}
                                 >
                                     Ele
                                 </button>
                             </div>
-                        </div>
+                        </Kart>
                     )}
 
-                    <div className="bg-white border rounded-lg p-4">
-                        <h2 className="font-medium mb-3">Aday</h2>
-                        <dl className="space-y-2 text-sm">
+                    <Kart>
+                        <h2 className="mb-3 font-semibold text-slate-900">Aday</h2>
+                        <dl className="space-y-3 text-sm">
                             <div>
-                                <dt className="text-gray-500">E-posta</dt>
-                                <dd>{basvuru.aday.email}</dd>
+                                <dt className="text-xs text-slate-500">E-posta</dt>
+                                <dd className="mt-0.5 break-words text-slate-800">
+                                    {basvuru.aday.email}
+                                </dd>
                             </div>
                             {basvuru.aday.telefon && (
                                 <div>
-                                    <dt className="text-gray-500">Telefon</dt>
-                                    <dd>{basvuru.aday.telefon}</dd>
+                                    <dt className="text-xs text-slate-500">Telefon</dt>
+                                    <dd className="mt-0.5 text-slate-800 tabular-nums">
+                                        {basvuru.aday.telefon}
+                                    </dd>
                                 </div>
                             )}
                             {basvuru.aday.ozet && (
                                 <div>
-                                    <dt className="text-gray-500">Özet</dt>
-                                    <dd className="text-gray-700">{basvuru.aday.ozet}</dd>
+                                    <dt className="text-xs text-slate-500">Özet</dt>
+                                    <dd className="mt-0.5 text-slate-700">{basvuru.aday.ozet}</dd>
                                 </div>
                             )}
                         </dl>
-                    </div>
+                    </Kart>
 
                     {uyum && (
-                        <div className="bg-white border rounded-lg p-4">
-                            <div className="flex items-baseline justify-between mb-3">
-                                <h2 className="font-medium">Uyum skoru</h2>
-                                <span className="text-2xl font-bold">%{uyum.skor}</span>
+                        <Kart>
+                            <div className="mb-3 flex items-baseline justify-between">
+                                <h2 className="font-semibold text-slate-900">Uyum skoru</h2>
+                                <span className="text-2xl font-bold tabular-nums text-slate-900">
+                                    %{uyum.skor}
+                                </span>
                             </div>
 
-                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+                            <div
+                                className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100"
+                                role="progressbar"
+                                aria-valuenow={uyum.skor}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-label="Uyum skoru"
+                            >
                                 <div
-                                    className="h-full bg-blue-600 rounded-full"
+                                    className="h-full rounded-full bg-blue-600 transition-[width] duration-700 ease-out"
                                     style={{ width: `${uyum.skor}%` }}
                                 />
                             </div>
 
                             {uyum.eslesenler.length > 0 && (
                                 <div className="mb-3">
-                                    <p className="text-xs text-gray-500 mb-1.5">Eşleşen</p>
+                                    <p className="mb-1.5 text-xs text-slate-500">Eşleşen</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {uyum.eslesenler.map((y) => (
-                                            <span key={y} className="text-xs bg-green-100 text-green-700 rounded px-2 py-0.5">
+                                            <Rozet key={y} ton="yesil" nokta={false}>
                                                 {y}
-                                            </span>
+                                            </Rozet>
                                         ))}
                                     </div>
                                 </div>
@@ -244,35 +265,36 @@ export default function BasvuruDetay() {
 
                             {uyum.eksikler.length > 0 && (
                                 <div>
-                                    <p className="text-xs text-gray-500 mb-1.5">Eksik</p>
+                                    <p className="mb-1.5 text-xs text-slate-500">Eksik</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {uyum.eksikler.map((y) => (
-                                            <span key={y} className="text-xs bg-gray-100 text-gray-500 rounded px-2 py-0.5">
+                                            <Rozet key={y} ton="notr" nokta={false}>
                                                 {y}
-                                            </span>
+                                            </Rozet>
                                         ))}
                                     </div>
                                 </div>
                             )}
-                        </div>
+                        </Kart>
                     )}
                 </div>
 
                 {/* Sag sutun */}
-                <div className="col-span-2 bg-white border rounded-lg p-4">
-                    <h2 className="font-medium mb-4">
+                <Kart className="lg:col-span-2">
+                    <h2 className="mb-4 font-semibold text-slate-900">
                         Aktivite geçmişi
-                        <span className="text-gray-400 font-normal ml-2">
+                        <span className="ml-2 font-normal text-slate-400 tabular-nums">
                             {basvuru.aktiviteler.length}
                         </span>
                     </h2>
 
-                    <form onSubmit={aktiviteEkle} className="border-b pb-4 mb-4 space-y-3">
-                        <div className="flex gap-2">
+                    <form onSubmit={aktiviteEkle} className="mb-4 space-y-3 border-b border-slate-100 pb-4">
+                        <div className="flex flex-wrap gap-2">
                             <select
                                 value={aktiviteForm.tip}
                                 onChange={(e) => setAktiviteForm({ ...aktiviteForm, tip: e.target.value })}
-                                className="border rounded px-3 py-2 text-sm bg-white"
+                                aria-label="Aktivite tipi"
+                                className={SECIM_DAR}
                             >
                                 <option value="NOT">Not</option>
                                 <option value="GORUSME">Görüşme</option>
@@ -282,8 +304,11 @@ export default function BasvuruDetay() {
                             {aktiviteForm.tip === 'DEGERLENDIRME' && (
                                 <select
                                     value={aktiviteForm.puan}
-                                    onChange={(e) => setAktiviteForm({ ...aktiviteForm, puan: Number(e.target.value) })}
-                                    className="border rounded px-3 py-2 text-sm bg-white"
+                                    onChange={(e) =>
+                                        setAktiviteForm({ ...aktiviteForm, puan: Number(e.target.value) })
+                                    }
+                                    aria-label="Değerlendirme puanı"
+                                    className={SECIM_DAR}
                                 >
                                     {[1, 2, 3, 4, 5].map((p) => (
                                         <option key={p} value={p}>{p} puan</option>
@@ -298,11 +323,12 @@ export default function BasvuruDetay() {
                             required
                             rows={2}
                             placeholder="Not, görüşme özeti veya değerlendirme..."
-                            className="w-full border rounded px-3 py-2 text-sm"
+                            aria-label="Aktivite içeriği"
+                            className={GIRDI}
                         />
 
                         {aktiviteHata && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded px-3 py-2">
+                            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                                 {aktiviteHata}
                             </div>
                         )}
@@ -310,40 +336,40 @@ export default function BasvuruDetay() {
                         <button
                             type="submit"
                             disabled={aktiviteKaydediliyor}
-                            className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
+                            className={BUTON_BIRINCIL}
                         >
                             {aktiviteKaydediliyor ? 'Ekleniyor...' : 'Aktivite ekle'}
                         </button>
                     </form>
 
                     {basvuru.aktiviteler.length === 0 ? (
-                        <p className="text-sm text-gray-500 py-6 text-center">
+                        <p className="py-8 text-center text-sm text-slate-500">
                             Henüz aktivite kaydı yok.
                         </p>
                     ) : (
                         <ol className="space-y-4">
                             {basvuru.aktiviteler.map((a) => (
-                                <li key={a.id} className="border-l-2 border-gray-200 pl-4 relative">
-                                    <span className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-gray-300" />
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-gray-600">
+                                <li key={a.id} className="relative border-l-2 border-slate-200 pl-4">
+                                    <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-slate-300" />
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-xs font-medium text-slate-600">
                                             {TIP_ADI[a.tip]}
                                         </span>
                                         {a.puan != null && (
-                                            <span className="text-xs bg-amber-100 text-amber-700 rounded px-1.5 py-0.5">
+                                            <Rozet ton="amber" nokta={false}>
                                                 {a.puan}/5
-                                            </span>
+                                            </Rozet>
                                         )}
-                                        <span className="text-xs text-gray-400 ml-auto">
-                                            {tarihYaz(a.tarih)}
+                                        <span className="ml-auto text-xs text-slate-400 tabular-nums">
+                                            {tarihSaatYaz(a.tarih)}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-800 mt-1">{a.icerik}</p>
+                                    <p className="mt-1 text-sm text-slate-800">{a.icerik}</p>
                                 </li>
                             ))}
                         </ol>
                     )}
-                </div>
+                </Kart>
             </div>
         </div>
     );

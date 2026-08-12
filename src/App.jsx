@@ -25,7 +25,6 @@ export default function App() {
                     <Route path="ilanlar" element={<Ilanlar />} />
                     <Route path="adaylar" element={<Adaylar />} />
                     <Route path="basvurular" element={<Basvurular />} />
-                    <Route path="basvurular" element={<Basvurular />} />
                     <Route path="basvurular/:id" element={<BasvuruDetay />} />
                 </Route>
             </Routes>

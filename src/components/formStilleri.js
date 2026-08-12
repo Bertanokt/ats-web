@@ -9,6 +9,12 @@ export const GIRDI =
 
 export const SECIM = `${GIRDI} bg-white`;
 
+// Genisligi icerige gore belirlenen secici (tip/puan gibi kisa alanlar).
+// GIRDI'deki w-full'u tasimadigi icin ayri tanimlandi.
+export const SECIM_DAR =
+    'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 ' +
+    'transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40';
+
 // Arac cubuklarindaki daha alcak girdiler (tablo ustu arama gibi)
 export const GIRDI_KUCUK =
     'rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-900 placeholder-slate-400 ' +
