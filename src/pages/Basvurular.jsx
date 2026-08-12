@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
+import { useNavigate } from 'react-router-dom';
+
 
 const ASAMA_ADI = {
     BASVURU: 'Başvuru',
@@ -74,6 +76,7 @@ function AsamaRozeti({ asama }) {
 }
 
 export default function Basvurular() {
+    const navigate = useNavigate();
     const [basvurular, setBasvurular] = useState([]);
     const [adaylar, setAdaylar] = useState([]);
     const [ilanlar, setIlanlar] = useState([]);
@@ -406,7 +409,8 @@ export default function Basvurular() {
                                 {sayfadakiler.map((b) => (
                                     <tr
                                         key={b.id}
-                                        className="border-t border-slate-100 transition hover:bg-slate-50/70"
+                                        onClick={() => navigate(`/basvurular/${b.id}`)}
+                                        className="border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 transition-colors"
                                     >
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2.5">

@@ -5,6 +5,7 @@ import Giris from './pages/Giris';
 import Ilanlar from './pages/Ilanlar';
 import Adaylar from './pages/Adaylar';
 import Basvurular from './pages/Basvurular';
+import BasvuruDetay from './pages/BasvuruDetay';
 
 export default function App() {
     return (
@@ -24,6 +25,8 @@ export default function App() {
                     <Route path="ilanlar" element={<Ilanlar />} />
                     <Route path="adaylar" element={<Adaylar />} />
                     <Route path="basvurular" element={<Basvurular />} />
+                    <Route path="basvurular" element={<Basvurular />} />
+                    <Route path="basvurular/:id" element={<BasvuruDetay />} />
                 </Route>
             </Routes>
         </BrowserRouter>
