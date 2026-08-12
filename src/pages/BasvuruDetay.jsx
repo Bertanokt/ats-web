@@ -14,6 +14,31 @@ const TIP_ADI = {
     DEGERLENDIRME: 'Değerlendirme',
 };
 
+// Gezinme kromasi: ust menuyle ayni notr ton, birincil mavi degil.
+// -ml-2 dolguyu geri alir, metin icerik kenarina hizali kalir.
+function GeriLink() {
+    return (
+        <Link
+            to="/basvurular"
+            className="group -ml-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+        >
+            <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform group-hover:-translate-x-0.5"
+            >
+                <path d="M12 15 7 10l5-5" />
+            </svg>
+            Başvurulara dön
+        </Link>
+    );
+}
+
 export default function BasvuruDetay() {
     const { id } = useParams();
 
@@ -125,12 +150,7 @@ export default function BasvuruDetay() {
     if (hata && !basvuru) {
         return (
             <div>
-                <Link
-                    to="/basvurular"
-                    className="text-sm text-blue-600 transition hover:text-blue-700 hover:underline"
-                >
-                    ← Başvurulara dön
-                </Link>
+                <GeriLink />
                 <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-4">
                     <p className="text-sm text-red-700">{hata}</p>
                 </div>
@@ -143,12 +163,7 @@ export default function BasvuruDetay() {
 
             {/* Ust satir */}
             <div>
-                <Link
-                    to="/basvurular"
-                    className="text-sm text-blue-600 transition hover:text-blue-700 hover:underline"
-                >
-                    ← Başvurulara dön
-                </Link>
+                <GeriLink />
 
                 <div className="mt-3 flex items-start gap-3">
                     <Avatar ad={basvuru.aday.adSoyad} boyut="xl" />
