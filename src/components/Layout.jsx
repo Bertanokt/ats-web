@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Avatar from './Avatar';
 
 export default function Layout() {
     const { kullanici, cikisYap } = useAuth();
@@ -16,14 +17,6 @@ export default function Layout() {
     }
 
     const rolAdi = kullanici?.rol === 'ADMIN' ? 'Yönetici' : 'İK Uzmanı';
-
-    const basHarfler = (kullanici?.adSoyad || '?')
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((p) => p[0])
-        .join('')
-        .toUpperCase();
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -44,12 +37,7 @@ export default function Layout() {
                             </div>
                             <div className="text-xs text-slate-500">{rolAdi}</div>
                         </div>
-                        <span
-                            title={kullanici?.adSoyad}
-                            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold text-slate-600"
-                        >
-                            {basHarfler}
-                        </span>
+                        <Avatar ad={kullanici?.adSoyad} boyut="md" />
                         <button
                             onClick={cikis}
                             className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
