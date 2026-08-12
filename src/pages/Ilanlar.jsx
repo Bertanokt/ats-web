@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import SayfaBasligi from '../components/SayfaBasligi';
+import Kart from '../components/Kart';
+import Rozet from '../components/Rozet';
+import BosDurum from '../components/BosDurum';
+import { ETIKET, GIRDI, BUTON_BIRINCIL, BUTON_IKINCIL, BUTON_TEHLIKE } from '../components/formStilleri';
 
 export default function Ilanlar() {
     const { adminMi } = useAuth();
@@ -111,22 +116,14 @@ export default function Ilanlar() {
     return (
         <div>
             {/* Baslik ve yeni ilan butonu */}
-            <div className="flex items-end justify-between mb-5">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">İlanlar</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">{ilanlar.length} ilan</p>
-                </div>
+            <SayfaBasligi baslik="İlanlar" sayac={`${ilanlar.length} ilan`}>
                 <button
                     onClick={() => setFormAcik(!formAcik)}
-                    className={
-                        formAcik
-                            ? 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100'
-                            : 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
-                    }
+                    className={formAcik ? BUTON_IKINCIL : BUTON_BIRINCIL}
                 >
                     {formAcik ? 'Vazgeç' : '+ Yeni ilan'}
                 </button>
-            </div>
+            </SayfaBasligi>
 
             {/* Genel hata (liste cekme, silme, durum degistirme) */}
             {hata && (
@@ -143,33 +140,33 @@ export default function Ilanlar() {
 
             {/* Yeni ilan formu */}
             {formAcik && (
-                <form onSubmit={formGonder} className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-4 space-y-4">
+                <form onSubmit={formGonder} className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 mb-4 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Pozisyon</label>
+                            <label className={ETIKET}>Pozisyon</label>
                             <input
                                 name="pozisyon"
                                 value={form.pozisyon}
                                 onChange={formDegis}
                                 required
-                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                                className={GIRDI}
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Departman</label>
+                            <label className={ETIKET}>Departman</label>
                             <input
                                 name="departman"
                                 value={form.departman}
                                 onChange={formDegis}
                                 required
-                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                                className={GIRDI}
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                            Nitelikler <span className="text-gray-400 font-normal">(virgülle ayırın)</span>
+                        <label className={ETIKET}>
+                            Nitelikler <span className="text-slate-400 font-normal">(virgülle ayırın)</span>
                         </label>
                         <input
                             name="nitelikler"
@@ -177,23 +174,23 @@ export default function Ilanlar() {
                             onChange={formDegis}
                             required
                             placeholder="Java, Spring, SQL"
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            className={GIRDI}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Açıklama</label>
+                        <label className={ETIKET}>Açıklama</label>
                         <textarea
                             name="aciklama"
                             value={form.aciklama}
                             onChange={formDegis}
                             rows={2}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            className={GIRDI}
                         />
                     </div>
 
                     {formHata && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded px-3 py-2">
+                        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">
                             {formHata}
                         </div>
                     )}
@@ -201,7 +198,7 @@ export default function Ilanlar() {
                     <button
                         type="submit"
                         disabled={kaydediliyor}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                        className={BUTON_BIRINCIL}
                     >
                         {kaydediliyor ? 'Kaydediliyor...' : 'Kaydet'}
                     </button>
@@ -210,22 +207,14 @@ export default function Ilanlar() {
 
             {/* Liste veya bos durum */}
             {ilanlar.length === 0 ? (
-                <div className="text-center py-14 border border-slate-200 rounded-xl bg-white">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                        +
-                    </div>
-                    <p className="text-slate-700 font-medium mt-3">Henüz ilan yok</p>
-                    <p className="text-sm text-slate-500 mt-1">
-                        Yukarıdaki butondan ilk ilanı oluşturabilirsiniz.
-                    </p>
-                </div>
+                <BosDurum
+                    baslik="Henüz ilan yok"
+                    aciklama="Yukarıdaki butondan ilk ilanı oluşturabilirsiniz."
+                />
             ) : (
                 <div className="space-y-3">
                     {ilanlar.map((ilan) => (
-                        <div
-                            key={ilan.id}
-                            className="group bg-white border border-slate-200 rounded-xl p-5 transition hover:border-slate-300 hover:shadow-sm"
-                        >
+                        <Kart key={ilan.id} hoverli>
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     <h2 className="font-semibold text-slate-900">{ilan.pozisyon}</h2>
@@ -233,22 +222,12 @@ export default function Ilanlar() {
                                         {ilan.departman}
                                     </span>
                                 </div>
-                                <span
-                                    className={
-                                        ilan.durum === 'ACIK'
-                                            ? 'shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20'
-                                            : 'shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 ring-1 ring-slate-500/20'
-                                    }
+                                <Rozet
+                                    ton={ilan.durum === 'ACIK' ? 'yesil' : 'notr'}
+                                    className="shrink-0"
                                 >
-                                    <span
-                                        className={
-                                            ilan.durum === 'ACIK'
-                                                ? 'h-1.5 w-1.5 rounded-full bg-emerald-500'
-                                                : 'h-1.5 w-1.5 rounded-full bg-slate-400'
-                                        }
-                                    />
                                     {ilan.durum === 'ACIK' ? 'Açık' : 'Kapalı'}
-                                </span>
+                                </Rozet>
                             </div>
 
                             <p className="text-sm text-slate-600 mt-3">{ilan.aciklama}</p>
@@ -268,7 +247,7 @@ export default function Ilanlar() {
                                 <button
                                     onClick={() => durumDegistir(ilan)}
                                     disabled={islemYapilan === ilan.id}
-                                    className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50"
+                                    className={`${BUTON_IKINCIL} px-3 py-1.5`}
                                 >
                                     {ilan.durum === 'ACIK' ? 'İlanı kapat' : 'İlanı aç'}
                                 </button>
@@ -277,13 +256,13 @@ export default function Ilanlar() {
                                     <button
                                         onClick={() => ilanSil(ilan)}
                                         disabled={islemYapilan === ilan.id}
-                                        className="text-sm border border-slate-200 text-slate-500 rounded-lg px-3 py-1.5 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                                        className={BUTON_TEHLIKE}
                                     >
                                         Sil
                                     </button>
                                 )}
                             </div>
-                        </div>
+                        </Kart>
                     ))}
                 </div>
             )}
