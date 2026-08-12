@@ -1,37 +1,14 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/client';
-import { useNavigate } from 'react-router-dom';
-
-
-const ASAMA_ADI = {
-    BASVURU: 'Başvuru',
-    ON_ELEME: 'Ön Eleme',
-    MULAKAT: 'Mülakat',
-    TEKLIF: 'Teklif',
-    ISE_ALINDI: 'İşe Alındı',
-    ELENDI: 'Elendi',
-};
-
-// Huni sirasi: hem rozet renkleri hem siralama icin tek kaynak
-const ASAMA_SIRASI = ['BASVURU', 'ON_ELEME', 'MULAKAT', 'TEKLIF', 'ISE_ALINDI', 'ELENDI'];
-
-const ASAMA_STILI = {
-    BASVURU: 'bg-slate-50 text-slate-600 ring-slate-500/20',
-    ON_ELEME: 'bg-blue-50 text-blue-700 ring-blue-600/20',
-    MULAKAT: 'bg-violet-50 text-violet-700 ring-violet-600/20',
-    TEKLIF: 'bg-amber-50 text-amber-700 ring-amber-600/20',
-    ISE_ALINDI: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-    ELENDI: 'bg-red-50 text-red-700 ring-red-600/20',
-};
-
-const ASAMA_NOKTASI = {
-    BASVURU: 'bg-slate-400',
-    ON_ELEME: 'bg-blue-500',
-    MULAKAT: 'bg-violet-500',
-    TEKLIF: 'bg-amber-500',
-    ISE_ALINDI: 'bg-emerald-500',
-    ELENDI: 'bg-red-500',
-};
+import SayfaBasligi from '../components/SayfaBasligi';
+import Avatar from '../components/Avatar';
+import AsamaRozeti from '../components/AsamaRozeti';
+import BosDurum from '../components/BosDurum';
+import { ASAMA_ADI, ASAMA_SIRASI, ASAMA_TONU } from '../utils/asama';
+import { TONLAR } from '../utils/rozetTonlari';
+import { tarihYaz } from '../utils/tarih';
+import { ETIKET, SECIM, GIRDI_KUCUK, BUTON_BIRINCIL, BUTON_IKINCIL } from '../components/formStilleri';
 
 const SUTUNLAR = [
     { alan: 'adSoyad', baslik: 'Aday' },
@@ -43,40 +20,7 @@ const SUTUNLAR = [
 
 const SAYFA_BOYUTU = 10;
 
-function basHarfler(adSoyad) {
-    return (adSoyad || '?')
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((p) => p[0])
-        .join('')
-        .toLocaleUpperCase('tr');
-}
-
-// "2026-08-12" -> "12 Ağu 2026" (saat dilimi kaymasi olmadan)
-function tarihYaz(isoTarih) {
-    if (!isoTarih) return '—';
-    const [yil, ay, gun] = isoTarih.split('-').map(Number);
-    return new Date(yil, ay - 1, gun).toLocaleDateString('tr-TR', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
-
-function AsamaRozeti({ asama }) {
-    return (
-        <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${ASAMA_STILI[asama]}`}
-        >
-            <span className={`h-1.5 w-1.5 rounded-full ${ASAMA_NOKTASI[asama]}`} />
-            {ASAMA_ADI[asama]}
-        </span>
-    );
-}
-
 export default function Basvurular() {
-    const navigate = useNavigate();
     const [basvurular, setBasvurular] = useState([]);
     const [adaylar, setAdaylar] = useState([]);
     const [ilanlar, setIlanlar] = useState([]);
@@ -216,36 +160,31 @@ export default function Basvurular() {
     return (
         <div>
             {/* Baslik */}
-            <div className="flex items-end justify-between mb-5">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">Başvurular</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                        {filtreli.length === basvurular.length
-                            ? `${basvurular.length} başvuru`
-                            : `${filtreli.length} / ${basvurular.length} başvuru`}
-                    </p>
-                </div>
+            <SayfaBasligi
+                baslik="Başvurular"
+                sayac={
+                    filtreli.length === basvurular.length
+                        ? `${basvurular.length} başvuru`
+                        : `${filtreli.length} / ${basvurular.length} başvuru`
+                }
+            >
                 <button
                     onClick={() => setFormAcik(!formAcik)}
-                    className={
-                        formAcik
-                            ? 'rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100'
-                            : 'rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
-                    }
+                    className={formAcik ? BUTON_IKINCIL : BUTON_BIRINCIL}
                 >
                     {formAcik ? 'Vazgeç' : '+ Yeni başvuru'}
                 </button>
-            </div>
+            </SayfaBasligi>
 
             {/* Yeni basvuru formu */}
             {formAcik && (
                 <form
                     onSubmit={basvuruOlustur}
-                    className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-4 space-y-4"
+                    className="rounded-xl border border-slate-200 bg-white shadow-sm p-5 mb-4 space-y-4"
                 >
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label htmlFor="aday" className="block text-sm font-medium text-slate-700 mb-1.5">
+                            <label htmlFor="aday" className={ETIKET}>
                                 Aday
                             </label>
                             <select
@@ -253,7 +192,7 @@ export default function Basvurular() {
                                 value={secilenAday}
                                 onChange={(e) => setSecilenAday(e.target.value)}
                                 required
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                                className={SECIM}
                             >
                                 <option value="">Aday seçin</option>
                                 {adaylar.map((aday) => (
@@ -265,7 +204,7 @@ export default function Basvurular() {
                         </div>
 
                         <div>
-                            <label htmlFor="ilan" className="block text-sm font-medium text-slate-700 mb-1.5">
+                            <label htmlFor="ilan" className={ETIKET}>
                                 İlan{' '}
                                 <span className="text-slate-400 font-normal">(yalnızca açık ilanlar)</span>
                             </label>
@@ -274,7 +213,7 @@ export default function Basvurular() {
                                 value={secilenIlan}
                                 onChange={(e) => setSecilenIlan(e.target.value)}
                                 required
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                                className={SECIM}
                             >
                                 <option value="">İlan seçin</option>
                                 {acikIlanlar.map((ilan) => (
@@ -295,7 +234,7 @@ export default function Basvurular() {
                     <button
                         type="submit"
                         disabled={kaydediliyor}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                        className={BUTON_BIRINCIL}
                     >
                         {kaydediliyor ? 'Oluşturuluyor...' : 'Başvuru oluştur'}
                     </button>
@@ -316,15 +255,10 @@ export default function Basvurular() {
             )}
 
             {basvurular.length === 0 ? (
-                <div className="text-center py-14 border border-slate-200 rounded-xl bg-white">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                        +
-                    </div>
-                    <p className="text-slate-700 font-medium mt-3">Henüz başvuru yok</p>
-                    <p className="text-sm text-slate-500 mt-1">
-                        Bir adayı açık bir ilana başvurtarak başlayın.
-                    </p>
-                </div>
+                <BosDurum
+                    baslik="Henüz başvuru yok"
+                    aciklama="Bir adayı açık bir ilana başvurtarak başlayın."
+                />
             ) : (
                 <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                     {/* Arac cubugu: arama + asama filtreleri */}
@@ -334,7 +268,7 @@ export default function Basvurular() {
                             value={arama}
                             onChange={(e) => aramaDegis(e.target.value)}
                             placeholder="Aday veya pozisyon ara..."
-                            className="w-64 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-900 placeholder-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+                            className={`${GIRDI_KUCUK} w-64`}
                         />
 
                         <div className="flex flex-wrap items-center gap-1.5">
@@ -345,11 +279,11 @@ export default function Basvurular() {
                                     aria-pressed={asamaFiltre === asama}
                                     className={
                                         asamaFiltre === asama
-                                            ? `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${ASAMA_STILI[asama]}`
+                                            ? `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${TONLAR[ASAMA_TONU[asama]].kutu}`
                                             : 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-slate-700'
                                     }
                                 >
-                                    <span className={`h-1.5 w-1.5 rounded-full ${ASAMA_NOKTASI[asama]}`} />
+                                    <span className={`h-1.5 w-1.5 rounded-full ${TONLAR[ASAMA_TONU[asama]].nokta}`} />
                                     {ASAMA_ADI[asama]}
                                     <span className="tabular-nums opacity-60">{sayi}</span>
                                 </button>
@@ -409,18 +343,19 @@ export default function Basvurular() {
                                 {sayfadakiler.map((b) => (
                                     <tr
                                         key={b.id}
-                                        onClick={() => navigate(`/basvurular/${b.id}`)}
-                                        className="border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 transition-colors"
+                                        className="group border-b border-slate-100 last:border-0 transition-colors hover:bg-slate-50 focus-within:bg-slate-50"
                                     >
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-2.5">
-                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-500">
-                                                    {basHarfler(b.adSoyad)}
-                                                </span>
-                                                <span className="font-medium text-slate-900">
+                                            {/* Link satirin tamamini kaplar: fare ve klavye ayni hedefe gider */}
+                                            <Link
+                                                to={`/basvurular/${b.id}`}
+                                                className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                                            >
+                                                <Avatar ad={b.adSoyad} boyut="sm" />
+                                                <span className="font-medium text-slate-900 group-hover:text-blue-700">
                                                     {b.adSoyad}
                                                 </span>
-                                            </div>
+                                            </Link>
                                         </td>
                                         <td className="px-4 py-3 text-slate-600">{b.ilanPozisyon}</td>
                                         <td className="px-4 py-3">
@@ -446,12 +381,12 @@ export default function Basvurular() {
 
                     {/* Filtre sonucu bos */}
                     {sirali.length === 0 && (
-                        <div className="px-4 py-12 text-center">
-                            <p className="text-slate-700 font-medium">Eşleşen başvuru yok</p>
-                            <p className="text-sm text-slate-500 mt-1">
-                                Aramayı değiştirin veya aşama filtresini kaldırın.
-                            </p>
-                        </div>
+                        <BosDurum
+                            simge="?"
+                            baslik="Eşleşen başvuru yok"
+                            aciklama="Aramayı değiştirin veya aşama filtresini kaldırın."
+                            cerceveli={false}
+                        />
                     )}
 
                     {/* Sayfalama */}
