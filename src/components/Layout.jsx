@@ -29,6 +29,7 @@ export default function Layout() {
                     <NavLink to="/ilanlar" className={linkStil}>İlanlar</NavLink>
                     <NavLink to="/adaylar" className={linkStil}>Adaylar</NavLink>
                     <NavLink to="/basvurular" className={linkStil}>Başvurular</NavLink>
+                    <NavLink to="/raporlar" className={linkStil}>Raporlar</NavLink>
 
                     <div className="ml-auto flex items-center gap-3">
                         <div className="hidden sm:block text-right leading-tight">

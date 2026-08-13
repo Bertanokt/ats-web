@@ -6,6 +6,7 @@ import Ilanlar from './pages/Ilanlar';
 import Adaylar from './pages/Adaylar';
 import Basvurular from './pages/Basvurular';
 import BasvuruDetay from './pages/BasvuruDetay';
+import Raporlar from './pages/Raporlar';
 
 export default function App() {
     return (
@@ -26,6 +27,7 @@ export default function App() {
                     <Route path="adaylar" element={<Adaylar />} />
                     <Route path="basvurular" element={<Basvurular />} />
                     <Route path="basvurular/:id" element={<BasvuruDetay />} />
+                    <Route path="raporlar" element={<Raporlar />} />
                 </Route>
             </Routes>
         </BrowserRouter>
