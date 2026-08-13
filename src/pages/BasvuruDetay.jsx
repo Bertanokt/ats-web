@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import Kart from '../components/Kart';
 import Avatar from '../components/Avatar';
@@ -16,10 +16,18 @@ const TIP_ADI = {
 
 // Gezinme kromasi: ust menuyle ayni notr ton, birincil mavi degil.
 // -ml-2 dolguyu geri alir, metin icerik kenarina hizali kalir.
+//
+// Detaya birden fazla yerden girilebiliyor (Basvurular listesi, Raporlar
+// tablosu). Baglanti veren sayfa nereye donulecegini router state'i ile
+// bildirir; bilmiyorsak (dogrudan adres, yer imi) Basvurular'a duseriz.
 function GeriLink() {
+    const { state } = useLocation();
+    const yol = state?.geriYol ?? '/basvurular';
+    const etiket = state?.geriEtiket ?? 'Başvurulara dön';
+
     return (
         <Link
-            to="/basvurular"
+            to={yol}
             className="group -ml-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
         >
             <svg
@@ -34,7 +42,7 @@ function GeriLink() {
             >
                 <path d="M12 15 7 10l5-5" />
             </svg>
-            Başvurulara dön
+            {etiket}
         </Link>
     );
 }

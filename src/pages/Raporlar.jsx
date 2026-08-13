@@ -248,6 +248,7 @@ export default function Raporlar() {
                                         <td className="px-4 py-3">
                                             <Link
                                                 to={`/basvurular/${k.id}`}
+                                                state={{ geriYol: '/raporlar', geriEtiket: 'Raporlara dön' }}
                                                 className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
                                             >
                                                 <Avatar ad={k.adSoyad} boyut="sm" />
