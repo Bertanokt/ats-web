@@ -7,12 +7,18 @@ import Adaylar from './pages/Adaylar';
 import Basvurular from './pages/Basvurular';
 import BasvuruDetay from './pages/BasvuruDetay';
 import Raporlar from './pages/Raporlar';
+import Kariyer from './pages/Kariyer';
+import KariyerBasvuru from './pages/KariyerBasvuru';
 
 export default function App() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/giris" element={<Giris />} />
+
+                {/* Public kariyer sayfalari: korumali blogun disinda, giris istemez */}
+                <Route path="/kariyer" element={<Kariyer />} />
+                <Route path="/kariyer/:ilanId" element={<KariyerBasvuru />} />
 
                 <Route
                     path="/"
