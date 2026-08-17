@@ -40,7 +40,10 @@ async function istek(yol, secenekler = {}) {
         } catch {
             // JSON degilse varsayilan mesaji kullan
         }
-        throw new Error(mesaj);
+        // Durum kodu da tasiniyor: cagiran taraf 404 ile 400'u ayirt edebilsin
+        const hataNesnesi = new Error(mesaj);
+        hataNesnesi.durum = cevap.status;
+        throw hataNesnesi;
     }
 
     // Govdesi olmayan cevaplar (DELETE gibi) icin
@@ -73,6 +76,20 @@ export const api = {
     upload: (yol, dosya) => {
         const form = new FormData();
         form.append('dosya', dosya);
+        return istek(yol, { method: 'POST', body: form });
+    },
+
+    // Dosya + metin alanlarini birlikte gonderir (multipart).
+    // Content-Type bilerek yazilmiyor: multipart sinir (boundary) degerini
+    // tarayici uretir, elle yazilirsa istek bozulur.
+    gonderForm: (yol, alanlar) => {
+        const form = new FormData();
+        Object.entries(alanlar).forEach(([ad, deger]) => {
+            // Bos birakilan istege bagli alanlar hic gonderilmesin
+            if (deger !== null && deger !== undefined && deger !== '') {
+                form.append(ad, deger);
+            }
+        });
         return istek(yol, { method: 'POST', body: form });
     },
 };
