@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import Kart from '../components/Kart';
 import Avatar from '../components/Avatar';
 import AsamaRozeti from '../components/AsamaRozeti';
@@ -49,6 +50,8 @@ function GeriLink() {
 
 export default function BasvuruDetay() {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { adminMi } = useAuth();
 
     const [basvuru, setBasvuru] = useState(null);
     const [uyum, setUyum] = useState(null);
@@ -58,6 +61,8 @@ export default function BasvuruDetay() {
     const [cvBilgi, setCvBilgi] = useState(null);
     const [cvIsleniyor, setCvIsleniyor] = useState(false);
     const [cvHata, setCvHata] = useState(null);
+    const [cvAciliyor, setCvAciliyor] = useState(false);
+    const [siliniyor, setSiliniyor] = useState(false);
 
     const [islemYapiliyor, setIslemYapiliyor] = useState(false);
     const [aktiviteKaydediliyor, setAktiviteKaydediliyor] = useState(false);
@@ -134,6 +139,48 @@ export default function BasvuruDetay() {
             setCvHata(err.message);
         } finally {
             setCvIsleniyor(false);
+        }
+    }
+
+    async function cvAc() {
+        setCvHata(null);
+        // Sekme tiklama aninda acilir: fetch beklendikten sonra acmak
+        // acilir pencere engelleyicisine takiliyor (kullanici hareketi baglami biter).
+        const sekme = window.open('', '_blank');
+        if (sekme) sekme.opener = null;
+
+        setCvAciliyor(true);
+        try {
+            const blob = await api.indir(`/api/adaylar/${basvuru.aday.id}/cv`);
+            const adres = URL.createObjectURL(blob);
+            if (sekme) sekme.location = adres;
+            else window.location.assign(adres);   // engellendiyse ayni sekmede ac
+
+            // Sekmenin dosyayi yuklemesine zaman tani, sonra bellegi birak
+            setTimeout(() => URL.revokeObjectURL(adres), 60000);
+        } catch (err) {
+            if (sekme) sekme.close();
+            setCvHata(err.message);
+        } finally {
+            setCvAciliyor(false);
+        }
+    }
+
+    async function basvuruSil() {
+        const sayi = basvuru.aktiviteler.length;
+        const metin = sayi > 0
+            ? `Bu başvuru ve ${sayi} aktivite kaydı silinecek. Emin misiniz?`
+            : 'Bu başvuru silinecek. Emin misiniz?';
+        if (!window.confirm(metin)) return;
+
+        setSiliniyor(true);
+        setHata(null);
+        try {
+            await api.del(`/api/basvurular/${id}`);
+            navigate('/basvurular');
+        } catch (err) {
+            setHata(err.message);
+            setSiliniyor(false);
         }
     }
 
@@ -230,27 +277,41 @@ export default function BasvuruDetay() {
                 {/* Sol sutun */}
                 <div className="space-y-4">
 
-                    {basvuru.asama !== 'ISE_ALINDI' && basvuru.asama !== 'ELENDI' && (
+                    {(basvuru.asama !== 'ISE_ALINDI' && basvuru.asama !== 'ELENDI') || adminMi ? (
                         <Kart>
                             <h2 className="mb-3 font-semibold text-slate-900">İşlemler</h2>
                             <div className="flex flex-col gap-2">
-                                <button
-                                    onClick={asamaIlerlet}
-                                    disabled={islemYapiliyor}
-                                    className={BUTON_BIRINCIL}
-                                >
-                                    {islemYapiliyor ? 'İşleniyor...' : 'Sonraki aşamaya geçir'}
-                                </button>
-                                <button
-                                    onClick={adayEle}
-                                    disabled={islemYapiliyor}
-                                    className={`${BUTON_TEHLIKE} py-2`}
-                                >
-                                    Ele
-                                </button>
+                                {basvuru.asama !== 'ISE_ALINDI' && basvuru.asama !== 'ELENDI' && (
+                                    <>
+                                        <button
+                                            onClick={asamaIlerlet}
+                                            disabled={islemYapiliyor}
+                                            className={BUTON_BIRINCIL}
+                                        >
+                                            {islemYapiliyor ? 'İşleniyor...' : 'Sonraki aşamaya geçir'}
+                                        </button>
+                                        <button
+                                            onClick={adayEle}
+                                            disabled={islemYapiliyor}
+                                            className={`${BUTON_TEHLIKE} py-2`}
+                                        >
+                                            Ele
+                                        </button>
+                                    </>
+                                )}
+
+                                {adminMi && (
+                                    <button
+                                        onClick={basvuruSil}
+                                        disabled={siliniyor}
+                                        className={`${BUTON_TEHLIKE} mt-1 border-t border-slate-100 py-2`}
+                                    >
+                                        {siliniyor ? 'Siliniyor...' : 'Başvuruyu sil'}
+                                    </button>
+                                )}
                             </div>
                         </Kart>
-                    )}
+                    ) : null}
 
                     <Kart>
                         <h2 className="mb-3 font-semibold text-slate-900">Aday</h2>
@@ -281,9 +342,14 @@ export default function BasvuruDetay() {
                         {cvBilgi && (
                             <div className="mt-4 border-t border-slate-100 pt-3">
                                 <p className="text-xs text-slate-500">Özgeçmiş</p>
-                                <p className="mt-0.5 truncate text-sm text-slate-700" title={cvBilgi.dosyaAdi}>
-                                    {cvBilgi.dosyaAdi}
-                                </p>
+                                <button
+                                    onClick={cvAc}
+                                    disabled={cvAciliyor}
+                                    title={`${cvBilgi.dosyaAdi} — yeni sekmede aç`}
+                                    className="mt-0.5 block max-w-full truncate text-left text-sm font-medium text-blue-600 underline-offset-2 transition hover:text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:opacity-60"
+                                >
+                                    {cvAciliyor ? 'Açılıyor...' : cvBilgi.dosyaAdi}
+                                </button>
 
                                 <button
                                     onClick={cvdenDoldur}

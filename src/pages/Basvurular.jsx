@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import SayfaBasligi from '../components/SayfaBasligi';
 import Avatar from '../components/Avatar';
 import AsamaRozeti from '../components/AsamaRozeti';
@@ -8,7 +9,7 @@ import BosDurum from '../components/BosDurum';
 import { ASAMA_ADI, ASAMA_SIRASI, ASAMA_TONU } from '../utils/asama';
 import { TONLAR } from '../utils/rozetTonlari';
 import { tarihYaz } from '../utils/tarih';
-import { ETIKET, SECIM, GIRDI_KUCUK, BUTON_BIRINCIL, BUTON_IKINCIL } from '../components/formStilleri';
+import { ETIKET, SECIM, GIRDI_KUCUK, BUTON_BIRINCIL, BUTON_IKINCIL, BUTON_TEHLIKE } from '../components/formStilleri';
 
 const SUTUNLAR = [
     { alan: 'adSoyad', baslik: 'Aday' },
@@ -21,6 +22,8 @@ const SUTUNLAR = [
 const SAYFA_BOYUTU = 10;
 
 export default function Basvurular() {
+    const { adminMi } = useAuth();
+    const [silinen, setSilinen] = useState(null);
     const [basvurular, setBasvurular] = useState([]);
     const [adaylar, setAdaylar] = useState([]);
     const [ilanlar, setIlanlar] = useState([]);
@@ -78,6 +81,24 @@ export default function Basvurular() {
             setFormHata(err.message);
         } finally {
             setKaydediliyor(false);
+        }
+    }
+
+    async function basvuruSil(b) {
+        const metin = b.aktiviteSayisi > 0
+            ? `Bu başvuru ve ${b.aktiviteSayisi} aktivite kaydı silinecek. Emin misiniz?`
+            : `${b.adSoyad} adayının bu başvurusu silinecek. Emin misiniz?`;
+        if (!window.confirm(metin)) return;
+
+        setSilinen(b.id);
+        setHata(null);
+        try {
+            await api.del(`/api/basvurular/${b.id}`);
+            await hepsiniGetir();
+        } catch (err) {
+            setHata(err.message);
+        } finally {
+            setSilinen(null);
         }
     }
 
@@ -337,6 +358,11 @@ export default function Basvurular() {
                                             </th>
                                         );
                                     })}
+                                    {adminMi && (
+                                        <th className="px-4 py-2.5">
+                                            <span className="sr-only">İşlem</span>
+                                        </th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
@@ -373,6 +399,17 @@ export default function Basvurular() {
                                                 <span className="text-slate-300">—</span>
                                             )}
                                         </td>
+                                        {adminMi && (
+                                            <td className="px-4 py-3 text-right">
+                                                <button
+                                                    onClick={() => basvuruSil(b)}
+                                                    disabled={silinen === b.id}
+                                                    className={`${BUTON_TEHLIKE} px-2.5 py-1 text-xs`}
+                                                >
+                                                    {silinen === b.id ? 'Siliniyor...' : 'Sil'}
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>

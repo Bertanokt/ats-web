@@ -11,7 +11,8 @@ function tokenAl() {
     }
 }
 
-async function istek(yol, secenekler = {}) {
+// ham=true ise cevap JSON olarak cozumlenmez, Blob dondurulur (PDF gibi ikili icerik).
+async function istek(yol, secenekler = {}, ham = false) {
     const token = tokenAl();
 
     // Mevcut basliklarin uzerine Authorization ekle
@@ -46,6 +47,8 @@ async function istek(yol, secenekler = {}) {
         throw hataNesnesi;
     }
 
+    if (ham) return cevap.blob();
+
     // Govdesi olmayan cevaplar (DELETE gibi) icin
     const metin = await cevap.text();
     if (!metin) return null;
@@ -78,6 +81,10 @@ export const api = {
         form.append('dosya', dosya);
         return istek(yol, { method: 'POST', body: form });
     },
+
+    // Ikili icerigi Blob olarak getirir. Tarayicinin kendi <a href> istegi
+    // Authorization basligi tasimadigi icin korumali dosyalar boyle alinir.
+    indir: (yol) => istek(yol, {}, true),
 
     // Dosya + metin alanlarini birlikte gonderir (multipart).
     // Content-Type bilerek yazilmiyor: multipart sinir (boundary) degerini
