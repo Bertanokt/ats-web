@@ -6,7 +6,7 @@ import Avatar from '../components/Avatar';
 import AsamaRozeti from '../components/AsamaRozeti';
 import Rozet from '../components/Rozet';
 import { tarihYaz, tarihSaatYaz } from '../utils/tarih';
-import { SECIM_DAR, GIRDI, BUTON_BIRINCIL, BUTON_TEHLIKE } from '../components/formStilleri';
+import { SECIM_DAR, GIRDI, BUTON_BIRINCIL, BUTON_IKINCIL, BUTON_TEHLIKE } from '../components/formStilleri';
 
 const TIP_ADI = {
     NOT: 'Not',
@@ -55,6 +55,10 @@ export default function BasvuruDetay() {
     const [yukleniyor, setYukleniyor] = useState(true);
     const [hata, setHata] = useState(null);
 
+    const [cvBilgi, setCvBilgi] = useState(null);
+    const [cvIsleniyor, setCvIsleniyor] = useState(false);
+    const [cvHata, setCvHata] = useState(null);
+
     const [islemYapiliyor, setIslemYapiliyor] = useState(false);
     const [aktiviteKaydediliyor, setAktiviteKaydediliyor] = useState(false);
     const [aktiviteHata, setAktiviteHata] = useState(null);
@@ -78,6 +82,13 @@ export default function BasvuruDetay() {
             ]);
             setBasvuru(b);
             setUyum(u);
+
+            // Kayitli CV var mi? Yoksa uc nokta null doner.
+            try {
+                setCvBilgi(await api.get(`/api/adaylar/${b.aday.id}/cv-bilgi`));
+            } catch {
+                setCvBilgi(null);
+            }
         } catch (err) {
             setHata(err.message);
         } finally {
@@ -110,6 +121,19 @@ export default function BasvuruDetay() {
             setHata(err.message);
         } finally {
             setIslemYapiliyor(false);
+        }
+    }
+
+    async function cvdenDoldur() {
+        setCvIsleniyor(true);
+        setCvHata(null);
+        try {
+            await api.postParam(`/api/adaylar/${basvuru.aday.id}/cv-parse-kayitli`);
+            await getir();
+        } catch (err) {
+            setCvHata(err.message);
+        } finally {
+            setCvIsleniyor(false);
         }
     }
 
@@ -165,6 +189,10 @@ export default function BasvuruDetay() {
             </div>
         );
     }
+
+    // Yetenek bilgisi yoksa skor "%0" degil "hesaplanamiyor" olarak gosterilir:
+    // %0 "hic uymuyor" gibi okunuyor, oysa durum "henuz bilinmiyor".
+    const adayYetenekVar = Boolean(basvuru.aday.yetenekler?.trim());
 
     return (
         <div className="space-y-4">
@@ -248,9 +276,56 @@ export default function BasvuruDetay() {
                                 </div>
                             )}
                         </dl>
+
+                        {/* Kayitli CV varsa bilgileri ondan doldurabilme */}
+                        {cvBilgi && (
+                            <div className="mt-4 border-t border-slate-100 pt-3">
+                                <p className="text-xs text-slate-500">Özgeçmiş</p>
+                                <p className="mt-0.5 truncate text-sm text-slate-700" title={cvBilgi.dosyaAdi}>
+                                    {cvBilgi.dosyaAdi}
+                                </p>
+
+                                <button
+                                    onClick={cvdenDoldur}
+                                    disabled={cvIsleniyor}
+                                    className={`${BUTON_IKINCIL} mt-2.5 w-full px-3 py-1.5`}
+                                >
+                                    {cvIsleniyor ? 'Okunuyor...' : 'CV’den bilgileri doldur'}
+                                </button>
+
+                                {cvIsleniyor && (
+                                    <p className="mt-2 text-xs text-slate-400">
+                                        Özgeçmiş okunuyor, bu birkaç saniye sürebilir.
+                                    </p>
+                                )}
+                                {cvHata && (
+                                    <p className="mt-2 text-xs text-red-600">{cvHata}</p>
+                                )}
+                                {!cvIsleniyor && !cvHata && (
+                                    <p className="mt-2 text-xs text-slate-400">
+                                        Yetenekler ve özet alanları CV’den güncellenir.
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </Kart>
 
-                    {uyum && (
+                    {uyum && !adayYetenekVar && (
+                        <Kart>
+                            <h2 className="font-semibold text-slate-900">Uyum skoru</h2>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                Bu aday için yetenek bilgisi yok, bu yüzden uyum
+                                hesaplanamıyor.
+                            </p>
+                            <p className="mt-2 text-xs text-slate-400">
+                                {cvBilgi
+                                    ? 'Yandaki “CV’den bilgileri doldur” düğmesiyle özgeçmişten çıkarabilirsiniz.'
+                                    : 'Aday kaydına yetenekler eklendiğinde skor hesaplanır.'}
+                            </p>
+                        </Kart>
+                    )}
+
+                    {uyum && adayYetenekVar && (
                         <Kart>
                             <div className="mb-3 flex items-baseline justify-between">
                                 <h2 className="font-semibold text-slate-900">Uyum skoru</h2>
